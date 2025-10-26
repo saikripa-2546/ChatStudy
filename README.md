@@ -78,52 +78,60 @@ client.py
 ```
 import socket
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-client.connect(("localhost", 5000))
+def client_program():
+    host = "127.0.0.1"
+    port = 8000
 
-done = False
+    client_socket = socket.socket()
+    client_socket.connect((host, port))
 
-while not done:
-    client.send(input("Message ").encode("utf-8"))
-    msg = client.recv(1024).decode("utf-8")
+    while True:
+        message = input(" -> ")
+        client_socket.send(message.encode())
 
-    if msg == "quit":
-        done = True
-    else:
-        print(msg)
+        data = client_socket.recv(1024).decode()
+        print("Received from server:", data)
+
+    client_socket.close()
 
 
-client.close()
+if __name__ == "__main__":
+    client_program()
 ```
 
 server.py
 ```
 import socket
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # 👈 add this line
-server.bind(("localhost", 5000))
-server.listen()
-print("Server listening on port 9999...")
 
-client, addr = server.accept()
-print(f"Connected to {addr}")
+def server_program():
+    host = "127.0.0.1"  # or socket.gethostname()
+    port = 8000
 
-done = False
-while not done:
-    msg = client.recv(1024).decode("utf-8")
-    if msg == "quit":
-        done = True
-    else:
-        print(msg)
-    client.send(input("Message: ").encode("utf-8"))
+    server_socket = socket.socket()
+    server_socket.bind((host, port))
+    server_socket.listen(1)
+    print(f"Server listening on {host}:{port}")
 
-client.close()
-server.close()
+    conn, address = server_socket.accept()
+    print("Connection from:", address)
+
+    while True:
+        data = conn.recv(1024).decode()
+        if not data:
+            break
+        print("from connected user:", data)
+        message = input(" -> ")
+        conn.send(message.encode())
+
+    conn.close()
+
+
+if __name__ == "__main__":
+    server_program()
 ```
-<img width="623" height="175" alt="image" src="https://github.com/user-attachments/assets/26284f76-a844-4ba6-a864-d53614034652" />
-<img width="645" height="132" alt="image" src="https://github.com/user-attachments/assets/f8474cee-9015-4895-9c6e-3ca5712834ae" />
+<img width="1162" height="202" alt="image" src="https://github.com/user-attachments/assets/dac0fe8e-1ecd-498d-a24f-735782334a04" />
 
 
 ## Result:
