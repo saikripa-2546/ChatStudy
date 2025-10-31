@@ -78,60 +78,39 @@ client.py
 ```
 import socket
 
+s = socket.socket()
+s.connect(("localhost", 8000))
 
-def client_program():
-    host = "127.0.0.1"
-    port = 8000
+server_time = s.recv(1024).decode()
+print("Received from server:", server_time)
 
-    client_socket = socket.socket()
-    client_socket.connect((host, port))
+s.send("Acknowledgment received from client.".encode())
 
-    while True:
-        message = input(" -> ")
-        client_socket.send(message.encode())
-
-        data = client_socket.recv(1024).decode()
-        print("Received from server:", data)
-
-    client_socket.close()
-
-
-if __name__ == "__main__":
-    client_program()
+s.close()
 ```
 
 server.py
+```import socket
+from datetime import datetime
+
+s = socket.socket()
+s.bind(("localhost", 8000))
+s.listen(5)
+
+c, addr = s.accept()
+print("Client Address :", addr)
+
+now = datetime.now()
+c.send(now.strftime("%d/%m/%Y %H:%M:%S").encode())
+
+ack = c.recv(1024).decode()
+if ack:
+    print(ack)
+
+c.close()
 ```
-import socket
+<img width="1063" height="152" alt="image" src="https://github.com/user-attachments/assets/8f21b947-bdb5-46cc-ad87-5097ea3ef4d3" />
 
-
-def server_program():
-    host = "127.0.0.1"  # or socket.gethostname()
-    port = 8000
-
-    server_socket = socket.socket()
-    server_socket.bind((host, port))
-    server_socket.listen(1)
-    print(f"Server listening on {host}:{port}")
-
-    conn, address = server_socket.accept()
-    print("Connection from:", address)
-
-    while True:
-        data = conn.recv(1024).decode()
-        if not data:
-            break
-        print("from connected user:", data)
-        message = input(" -> ")
-        conn.send(message.encode())
-
-    conn.close()
-
-
-if __name__ == "__main__":
-    server_program()
-```
-<img width="1162" height="202" alt="image" src="https://github.com/user-attachments/assets/dac0fe8e-1ecd-498d-a24f-735782334a04" />
 
 
 ## Result:
